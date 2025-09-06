@@ -74,8 +74,7 @@
           const row = allData[i];
           if (!row) continue;
 
-          // Ambil kolom B (index ke-1 dari Object.values)
-          const valStr = Object.values(row)[1]; 
+          const valStr = Object.values(row)[1]; // kolom B
           if (!valStr) continue;
 
           const ekor = valStr[valStr.length-1];
@@ -86,9 +85,16 @@
 
         if (searchTerm && !gabungan.includes(searchTerm)) continue;
 
+        // Highlight angka yang dicari
+        let displayText = gabungan;
+        if (searchTerm) {
+          const regex = new RegExp(`(${searchTerm})`, "g");
+          displayText = gabungan.replace(regex, "<mark>$1</mark>");
+        }
+
         const div = document.createElement("div");
-        div.className = "p-2 bg-white rounded shadow";
-        div.innerHTML = `<strong>${asKey}:</strong> ${gabungan}`;
+        div.className = "p-2 bg-white rounded shadow break-words";
+        div.innerHTML = `<strong>${asKey}:</strong> ${displayText}`;
         container.appendChild(div);
       }
     }
