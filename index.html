@@ -22,7 +22,6 @@
       <option value="AS6">AS6</option>
       <option value="AS7">AS7</option>
       <option value="AS8">AS8</option>
-      <option value="AS9">AS9</option>
     </select>
 
     <input type="text" id="search-input" placeholder="Cari angka..." class="p-2 border rounded flex-1">
@@ -36,26 +35,26 @@
     const sheetName = "4D BERDASARKAN AS";
     const url = `https://opensheet.elk.sh/${spreadsheetId}/${sheetName}`;
 
-    const asColumns = {
-      "AS0": ["C","D","E","F"],
-      "AS1": ["H","I","J","K"],
-      "AS2": ["M","N","O","P"],
-      "AS3": ["R","S","T","U"],
-      "AS4": ["W","X","Y","Z"],
-      "AS5": ["AB","AC","AD","AE"],
-      "AS6": ["AG","AH","AI","AJ"],
-      "AS7": ["AL","AM","AN","AO"],
-      "AS8": ["AQ","AR","AS","AT"],
-      "AS9": ["AV","AW","AX","AY"]
+    // Map AS ke baris di kolom B
+    const asRows = {
+      "AS0": [2,11], // baris 2 sampai 11
+      "AS1": [2,11],
+      "AS2": [2,11],
+      "AS3": [2,11],
+      "AS4": [2,11],
+      "AS5": [2,11],
+      "AS6": [2,11],
+      "AS7": [2,11],
+      "AS8": [2,11]
     };
 
     const container = document.getElementById("as-container");
-    let allData = []; // simpan hasil gabungan untuk filter/search
+    let allData = []; 
 
     fetch(url)
-      .then(response => response.json())
+      .then(res => res.json())
       .then(data => {
-        allData = data; 
+        allData = data;
         renderAS("All", "", "");
       })
       .catch(err => {
@@ -64,23 +63,23 @@
 
     function renderAS(filterAS, searchTerm, ekorFilter) {
       container.innerHTML = "";
-      for (let asKey in asColumns) {
+
+      for (let asKey in asRows) {
         if (filterAS !== "All" && filterAS !== asKey) continue;
 
-        let cols = asColumns[asKey];
+        const [startRow, endRow] = asRows[asKey];
         let gabungan = "";
 
-        allData.forEach(row => {
-          cols.forEach(col => {
-            if (row[col] !== undefined && row[col] !== "") {
-              const valStr = row[col].toString();
-              const ekor = valStr[valStr.length-1]; // digit terakhir
-              if (!ekorFilter || ekor === ekorFilter) {
-                gabungan += valStr;
-              }
-            }
-          });
-        });
+        for (let i = startRow-2; i < endRow-1; i++) { // -2 karena index array 0
+          const row = allData[i];
+          if (!row || !row["B"]) continue;
+          const valStr = row["B"].toString();
+          const ekor = valStr[valStr.length-1];
+
+          if (!ekorFilter || ekor === ekorFilter) {
+            gabungan += valStr;
+          }
+        }
 
         if (searchTerm && !gabungan.includes(searchTerm)) continue;
 
@@ -91,25 +90,22 @@
       }
     }
 
-    // Event filter dropdown
     document.getElementById("as-filter").addEventListener("change", () => {
-      const searchTerm = document.getElementById("search-input").value.trim();
-      const ekorTerm = document.getElementById("ekor-filter").value.trim();
-      renderAS(document.getElementById("as-filter").value, searchTerm, ekorTerm);
+      renderAS(document.getElementById("as-filter").value,
+               document.getElementById("search-input").value.trim(),
+               document.getElementById("ekor-filter").value.trim());
     });
 
-    // Event input search
     document.getElementById("search-input").addEventListener("input", () => {
-      const filterAS = document.getElementById("as-filter").value;
-      const ekorTerm = document.getElementById("ekor-filter").value.trim();
-      renderAS(filterAS, document.getElementById("search-input").value.trim(), ekorTerm);
+      renderAS(document.getElementById("as-filter").value,
+               document.getElementById("search-input").value.trim(),
+               document.getElementById("ekor-filter").value.trim());
     });
 
-    // Event input ekor filter
     document.getElementById("ekor-filter").addEventListener("input", () => {
-      const filterAS = document.getElementById("as-filter").value;
-      const searchTerm = document.getElementById("search-input").value.trim();
-      renderAS(filterAS, searchTerm, document.getElementById("ekor-filter").value.trim());
+      renderAS(document.getElementById("as-filter").value,
+               document.getElementById("search-input").value.trim(),
+               document.getElementById("ekor-filter").value.trim());
     });
   </script>
 </body>
