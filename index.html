@@ -35,17 +35,17 @@
     const sheetName = "4D BERDASARKAN AS";
     const url = `https://opensheet.elk.sh/${spreadsheetId}/${sheetName}`;
 
-    // Map AS ke baris di kolom B
+    // Map AS ke baris di kolom B (index array = baris-1)
     const asRows = {
-      "AS0": [2,11], // baris 2 sampai 11
-      "AS1": [2,11],
-      "AS2": [2,11],
-      "AS3": [2,11],
-      "AS4": [2,11],
-      "AS5": [2,11],
-      "AS6": [2,11],
-      "AS7": [2,11],
-      "AS8": [2,11]
+      "AS0": [1, 10], // B2:B11 → array index 1–10
+      "AS1": [1, 10],
+      "AS2": [1, 10],
+      "AS3": [1, 10],
+      "AS4": [1, 10],
+      "AS5": [1, 10],
+      "AS6": [1, 10],
+      "AS7": [1, 10],
+      "AS8": [1, 10]
     };
 
     const container = document.getElementById("as-container");
@@ -67,15 +67,18 @@
       for (let asKey in asRows) {
         if (filterAS !== "All" && filterAS !== asKey) continue;
 
-        const [startRow, endRow] = asRows[asKey];
+        const [startIndex, endIndex] = asRows[asKey];
         let gabungan = "";
 
-        for (let i = startRow-2; i < endRow-1; i++) { // -2 karena index array 0
+        for (let i = startIndex; i <= endIndex; i++) {
           const row = allData[i];
-          if (!row || !row["B"]) continue;
-          const valStr = row["B"].toString();
-          const ekor = valStr[valStr.length-1];
+          if (!row) continue;
 
+          // Ambil kolom B (index ke-1 dari Object.values)
+          const valStr = Object.values(row)[1]; 
+          if (!valStr) continue;
+
+          const ekor = valStr[valStr.length-1];
           if (!ekorFilter || ekor === ekorFilter) {
             gabungan += valStr;
           }
